@@ -15,11 +15,13 @@ class PostApiController extends Controller
 {
     public function index()
     {
+        abort_if(Gate::denies('post_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         return new PostResource(Post::all());
     }
 
     public function store(StorePostRequest $request)
     {
+        abort_if(Gate::denies('post_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $post = Post::create($request->all());
 
         return (new PostResource($post))
@@ -28,7 +30,8 @@ class PostApiController extends Controller
     }
 
     public function show($id)
-    {                      
+    {             
+        abort_if(Gate::denies('post_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');         
         return (new PostResource(Post::findOrFail($id)))
             ->response()
             ->setStatusCode(Response::HTTP_OK);
@@ -36,6 +39,7 @@ class PostApiController extends Controller
 
     public function update(UpdatePostRequest $request, Post $post)
     {
+        abort_if(Gate::denies('post_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');         
         $post->update($request->all());
 
         return (new PostResource($post))

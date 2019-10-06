@@ -8,41 +8,43 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
+use Tests\ApiTestTrait;
 
 
 class PostAPITest extends TestCase
 {
-    use WithoutMiddleware, DatabaseTransactions;
+    use WithoutMiddleware, DatabaseTransactions, ApiTestTrait;
     /**
      * A basic unit test example.
      *
      * @return void
      */
 
+
+
     public function test_read_post()
     {
         $post = factory(Post::class)->create();
-        $admin = \App\User::find(1);
+
+
         $this->response = $this
-            ->actingAs($admin)
+            ->actingAs($this->getAdminUser('post_access'), 'api')
             ->json(
                 'GET',
                 '/api/v1/posts/' . $post->id
-            )->assertStatus(200);
+            );
 
         $response = json_decode($this->response->getContent(), true);
         $responseData = $response['data'];
-        
+
         $this->assertDatabaseHas('posts', $responseData);
-        
     }
 
     public function test_read_all_posts()
     {
-        $admin = \App\User::find(1);
 
         $this->response = $this
-            ->actingAs($admin)
+            ->actingAs($this->getAdminUser('post_access'), 'api')
             ->json(
                 'GET',
                 '/api/v1/posts/'
@@ -55,10 +57,11 @@ class PostAPITest extends TestCase
 
     public function test_create_post()
     {
+
         $post = factory(Post::class)->make()->toArray();
-        $admin = \App\User::find(1);
+
         $this->response = $this
-            ->actingAs($admin)
+            ->actingAs($this->getAdminUser('post_access'), 'api')
             ->json(
                 'POST',
                 '/api/v1/posts',
